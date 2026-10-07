@@ -1,0 +1,91 @@
+---
+title: "Untitled"
+format: html
+---
+
+```{r}
+data(AirPassengers)
+AP <- AirPassengers
+AP
+class(AP)
+start(AP)
+end(AP)
+frequency(AP)
+plot(
+  AP,
+  ylab = "Number of Passengers",
+  xlab = "Year",
+  main = "Monthly Airline Passenger Numbers 1949-1960"
+)
+```
+
+- trend: a systematic change that does not appear to be periodic
+- seasonal variation: applied generally to repeating patterns within any fixed period of time (e.g. days of the week)
+- cycles: pattern that do not correspond to some fix ed period of time (e.g. business cycles)
+
+In the absence of some shock to the system, trends generally change slowly, therefore linear extrapolation is good approzimation for the few steps ahead. 
+- Higher-order polynomials can be used for historic fits
+- Linear extrapolation for short-term forecasts
+- Forecasts longer then a year are better called scenarios, expecting trends to continue lineraly for many years is often unrealistic.
+
+Data cleaning
+- Erroneous values such as missing data (often coded a negative value)
+- Outliers - investigate.  If correct, they should not be excluded but consider more robust methods.
+
+Coding
+- use `aggregate` to aggregate to annual-level and remove seasonal component.  
+- Use a boxplot to visualize a summary of values for each season, use the `cycle` function to extract seasons for each item of data.
+- Use `layout` to arrange multiple plots on a single page.
+
+```{r}
+layout(1:2)
+plot(aggregate(AP))
+boxplot(AP~cycle(AP))
+```
+
+Monthly Employment Rates for Maine: 
+```{r}
+www <- "C:\\Users\\BASHCROF\\git-repos\\github\\Introductory-Time-Series-with-R-Datasets\\data\\Maine.dat"
+Maine.month <- read.table(www, header = TRUE)
+attach(Maine.month)
+
+# reads in as a dataframe, with column unemploy
+class(Maine.month) 
+head(Maine.month)
+
+# turn column unemploy into a ts object
+# use start and end to subset of the data
+Maine.month.ts <- ts(unemploy, start = c(1986,1), end = c(1990,12), freq = 12)
+class(Maine.month.ts)
+```
+
+```{r}
+# use the entire data
+Maine.month.ts <- ts(unemploy, start = c(1986,1), freq = 12)
+
+# get mean annual rate
+Maine.annual.ts <- aggregate(Maine.month.ts, nfrequency = 1)
+
+# plot both time series
+layout(1:2)
+plot(Maine.month.ts, main = "Monthly Employment Rates for Maine", ylab = "Unemployed (%)")
+plot(Maine.annual.ts, main = "Annual Employment Rates for Maine", ylab = "Unemployed (%)")
+
+# Calculate the precise percentages using window
+# sample with a frequency of "frequency"
+Maine.Feb <- window(Maine.month.ts, start = c(1996,2), freq=TRUE)
+Maine.Aug <- window(Maine.month.ts, start = c(1996,8), freq=TRUE)
+Feb.ratio = mean(Maine.Feb)/mean(Maine.month.ts)
+Aug.ratio = mean(Maine.Aug)/mean(Maine.month.ts)
+Feb.ratio
+Aug.ratio
+```
+
+```{r}
+www <- "C:\\Users\\BASHCROF\\git-repos\\github\\Introductory-Time-Series-with-R-Datasets\\data\\USunemp.dat"
+US.month <- read.table(www, header = TRUE)
+attach(US.month)
+
+US.month.ts <- ts(USun, start = c(1996,1), end = c(2006,10), freq = 12)
+plot(US.month.ts, main = "Monthly Unemployment Rates in the US", ylab = "Unemployment Rate (%)")
+```
